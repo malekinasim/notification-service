@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: notification-postgres
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: notif_user
+      POSTGRES_PASSWORD: notif_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - notification-network
+
+  RabbitMQ:
+    image: rabbitmq:3-management-alpine
+    container_name: notification-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rabit_gust
+      RABBITMQ_DEFAULT_PASS: rabit_gust_6006
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - notification-network
+
+  pgAdmin:
+    image: dpage/pgadmin4:latest
+    container_name: notification-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: maleki.nasim@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin6006
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - notification-network
+
+volumes:
+  postgres_data:
+
+networks:
+  notification-network:
