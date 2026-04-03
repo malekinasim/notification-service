@@ -12,6 +12,10 @@ public class NotificationMapper {
                 notification.getTemplate().getCode(),
                 notification.getRoutingPolicy().getCode(),
                 notification.getRecipientAddress(),
+                notification.getRecipientName(),
+                notification.getSenderAddress(),
+                notification.getSenderName(),
+                notification.getPayloadJson(),
                 notification.getCurrentStatus().name(),
                 notification.getCreatedAt()
         );

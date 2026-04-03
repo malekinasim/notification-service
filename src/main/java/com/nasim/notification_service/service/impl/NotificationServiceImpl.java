@@ -9,6 +9,7 @@ import com.nasim.notification_service.model.entity.RoutingPolicy;
 import com.nasim.notification_service.model.entity.Template;
 import com.nasim.notification_service.repository.NotificationRepository;
 import com.nasim.notification_service.repository.TemplateRepository;
+import com.nasim.notification_service.service.NotificationRoutService;
 import com.nasim.notification_service.service.NotificationService;
 import com.nasim.notification_service.service.NotificationStatusHistoryService;
 import com.nasim.notification_service.service.RoutingPolicyService;
@@ -18,23 +19,25 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
-@Transactional
+@Transactional(rollbackFor = Exception.class)
 public class NotificationServiceImpl implements NotificationService {
 
     private final TemplateRepository templateRepository;
     private final NotificationRepository notificationRepository;
     private final RoutingPolicyService routingPolicyService;
+    private final NotificationRoutService notificationRoutService;
     private final NotificationStatusHistoryService notificationStatusHistoryService;
 
     public NotificationServiceImpl(
             TemplateRepository templateRepository,
             NotificationRepository notificationRepository,
-            RoutingPolicyService routingPolicyService,
+            RoutingPolicyService routingPolicyService, NotificationRoutService notificationRoutService,
             NotificationStatusHistoryService notificationStatusHistoryService
     ) {
         this.templateRepository = templateRepository;
         this.notificationRepository = notificationRepository;
         this.routingPolicyService = routingPolicyService;
+        this.notificationRoutService = notificationRoutService;
         this.notificationStatusHistoryService = notificationStatusHistoryService;
     }
 
@@ -72,6 +75,16 @@ public class NotificationServiceImpl implements NotificationService {
                 savedNotification,
                 Notification.NotificationStatus.CREATED,
                 "Notification created"
+        );
+        notificationRoutService.generateRoutingPlan(savedNotification,routingPolicy);
+
+        savedNotification.setCurrentStatus(Notification.NotificationStatus.QUEUED);
+
+        savedNotification = notificationRepository.save(savedNotification);
+        notificationStatusHistoryService.record(
+                savedNotification,
+                Notification.NotificationStatus.QUEUED,
+                "Notification queued for delivery"
         );
 
         return savedNotification;
