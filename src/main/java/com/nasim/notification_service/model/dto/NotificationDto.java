@@ -10,16 +10,14 @@ public record NotificationDto(
         Long tempLateId ,
         @NotBlank(message = "templateCode must not be blank")
         String templateCode,
-
         @NotBlank(message = "recipientAddress must not be blank")
         String recipientAddress,
-
         String recipientName,
         String senderAddress,
         String senderName,
-
         @NotBlank(message = "payloadJson must not be blank")
         String payloadJson,
         LocalDateTime createdDate
 ) {
+
 }

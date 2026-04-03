@@ -39,8 +39,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TenantResolutionException.class)
     public ResponseEntity<ApiErrorResponse> handleTenantNotFound(TenantResolutionException ex) {
-        return buildResponse(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage());
-
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiErrorResponse> handleUnexpected(Exception ex) {
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected internal server error");
     }
     private ResponseEntity<ApiErrorResponse> buildResponse(HttpStatus status, String message) {
         ApiErrorResponse err = new ApiErrorResponse(status.value(), message, LocalDateTime.now());

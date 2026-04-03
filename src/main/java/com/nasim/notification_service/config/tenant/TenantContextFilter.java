@@ -1,6 +1,7 @@
 package com.nasim.notification_service.config.tenant;
 
 import com.nasim.notification_service.config.security.CustomUserDetails;
+import com.nasim.notification_service.exception.TenantResolutionException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,17 +14,23 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 public class TenantContextFilter extends OncePerRequestFilter {
+
     private static final String TENANT_HEADER = "X-Tenant-Id";
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
         try {
             String tenantId = resolveTenant(request);
 
-            if (StringUtils.hasText(tenantId)) {
-                TenantContext.setTenantId(tenantId);
+            if (!StringUtils.hasText(tenantId)) {
+                throw new TenantResolutionException("Tenant could not be resolved");
             }
 
+            TenantContext.setTenantId(tenantId);
             filterChain.doFilter(request, response);
         } finally {
             TenantContext.clear();
@@ -39,7 +46,6 @@ public class TenantContextFilter extends OncePerRequestFilter {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
-
             if (principal instanceof CustomUserDetails userDetails) {
                 return userDetails.getTenantId();
             }
