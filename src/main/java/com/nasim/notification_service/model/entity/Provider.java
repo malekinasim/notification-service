@@ -1,12 +1,8 @@
 package com.nasim.notification_service.model.entity;
 
-import com.fasterxml.jackson.databind.annotation.EnumNaming;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.tool.schema.extract.internal.ColumnInformationImpl;
-import org.hibernate.tool.schema.extract.spi.ColumnInformation;
-import org.hibernate.tool.schema.extract.spi.ColumnTypeInformation;
 
 @Getter
 @Setter
