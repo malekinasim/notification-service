@@ -14,7 +14,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
 
     @Query(value = """ 
-                    select nt from Notification nt where nt.currentStatus=:staus
+                    select nt from Notification nt where nt.currentStatus=:status
                        and nt.id= :id
             """)
     Optional<Notification> findByIdAndStatus(Long id, Notification.NotificationStatus status);

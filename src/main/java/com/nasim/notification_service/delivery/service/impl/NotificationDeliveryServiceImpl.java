@@ -5,11 +5,12 @@ import com.nasim.notification_service.delivery.service.NotificationDeliveryServi
 import com.nasim.notification_service.delivery.service.ProviderDispatcher;
 import com.nasim.notification_service.model.dto.ProviderResponse;
 import com.nasim.notification_service.model.entity.*;
-import com.nasim.notification_service.notification.kafka.payload.NotificationQueeedMessage;
+import com.nasim.notification_service.notification.kafka.payload.NotificationQueuedMessage;
 import com.nasim.notification_service.notification.service.NotificationService;
 import com.nasim.notification_service.routing.service.NotificationRouteService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -30,13 +31,13 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void sendQueuedMessageToProvider(NotificationQueeedMessage message) {
+    public void sendQueuedMessageToProvider(NotificationQueuedMessage message) {
         Notification notification=notificationService.findbyIdAndStatus(message.notificationId(), Notification.NotificationStatus.QUEUED);
         notification=notificationService.updateNotificationStatus(notification, Notification.NotificationStatus.PROCESSING,"Delivery processing started",false);
         NotificationRoute notificationRoute=processNotificationDelivery(notification);
         Notification.NotificationStatus status= Notification.NotificationStatus.SENT;
 
-        if(notificationRoute.getStatus().name().equals(NotificationRoute.RouteStatus.SENT.name())){
+        if(notificationRoute==null || notificationRoute.getStatus().name().equals(NotificationRoute.RouteStatus.FAILED.name())){
             status= Notification.NotificationStatus.FAILED;
         }
         notificationService.updateNotificationStatus(notification,status,String.format("Delivery process finished %s",notificationRoute.getStatus().name()),false);
@@ -48,6 +49,7 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
                         notification.getId(),
                         NotificationRoute.RouteStatus.PENDING
                 );
+        if(CollectionUtils.isEmpty(pendingRoutes)) return null;
         int idx = 0;
         NotificationRoute notificationRoute = null;
         for (; idx < pendingRoutes.size(); idx++) {

@@ -10,7 +10,7 @@ spring:
     username: notif_user
     password: notif_pass
     driver-class-name: org.postgresql.Driver
-  Kafka:
+  kafka:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: notification-service-group

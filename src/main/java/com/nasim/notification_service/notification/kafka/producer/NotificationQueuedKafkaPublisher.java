@@ -2,7 +2,7 @@ package com.nasim.notification_service.notification.kafka.producer;
 
 import com.nasim.notification_service.model.entity.Notification;
 import com.nasim.notification_service.notification.event.NotificationQueuedEvent;
-import com.nasim.notification_service.notification.kafka.payload.NotificationQueeedMessage;
+import com.nasim.notification_service.notification.kafka.payload.NotificationQueuedMessage;
 import com.nasim.notification_service.notification.service.NotificationService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -24,6 +24,6 @@ public class NotificationQueuedKafkaPublisher {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleQueuedNotification(NotificationQueuedEvent event) {
         Notification notification = notificationService.findbyIdAndStatus(event.notificationId(), Notification.NotificationStatus.QUEUED);
-        notificationKafkaProducer.sendQueuedMessageToProvider(new NotificationQueeedMessage(notification.getTenantID(),notification.getId(), LocalDateTime.now()));
+        notificationKafkaProducer.sendQueuedMessageToProvider(new NotificationQueuedMessage(notification.getTenantID(),notification.getId(), LocalDateTime.now()));
     }
 }

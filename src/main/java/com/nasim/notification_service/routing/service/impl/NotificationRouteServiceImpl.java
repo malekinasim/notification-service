@@ -44,7 +44,7 @@ public class NotificationRouteServiceImpl implements NotificationRouteService {
 
     @Override
     public NotificationRoute updateStatus(NotificationRoute notificationRoute, NotificationRoute.RouteStatus routeStatus, Boolean fetch) {
-        if(fetch || notificationRoute==null ) this.findByID(notificationRoute.getId());
+        if(fetch && notificationRoute!=null ) notificationRoute=this.findByID(notificationRoute.getId());
         assert notificationRoute != null;
         notificationRoute.setStatus(routeStatus);
         return notificationRouteRepository.save(notificationRoute);

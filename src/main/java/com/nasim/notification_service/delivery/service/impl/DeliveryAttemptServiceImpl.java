@@ -31,11 +31,13 @@ public class DeliveryAttemptServiceImpl implements DeliveryAttemptService {
 
     @Override
     public DeliveryAttempt updateStatus(DeliveryAttempt deliveryAttempt, boolean success, String errorCode, String errorMessage, boolean fetch) {
-        if(fetch) deliveryAttempt= this.findById(deliveryAttempt.getId()) ;
+        if(fetch && deliveryAttempt!=null) deliveryAttempt= this.findById(deliveryAttempt.getId()) ;
+        assert deliveryAttempt != null;
         deliveryAttempt.setSuccess(success);
         deliveryAttempt.setFinishedAt(LocalDateTime.now());
         deliveryAttempt.setErrorCode(errorCode);
         deliveryAttempt.setErrorMessage(errorMessage);
+        return deliveryAttemptRepository.save(deliveryAttempt);
     }
 
     @Override

@@ -113,7 +113,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Notification updateNotificationStatus(Notification notification, Notification.NotificationStatus status, String reason, Boolean fetch) {
-        if(fetch || notification==null) notification=this.findById(notification.getId());
+        if(fetch && notification!=null) notification=this.findById(notification.getId());
+        assert notification != null;
         notification.setCurrentStatus(status) ;
         Notification savedNotification = notificationRepository.save(notification);
         notificationStatusHistoryService.record(
