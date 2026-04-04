@@ -1,22 +1,27 @@
-package com.nasim.notification_service.service.impl;
+package com.nasim.notification_service.notification.service.impl;
 
 import com.nasim.notification_service.config.tenant.TenantContext;
-import com.nasim.notification_service.exception.ResourceNotFoundException;
-import com.nasim.notification_service.exception.TenantResolutionException;
+import com.nasim.notification_service.shared.exception.BusinessException;
+import com.nasim.notification_service.shared.exception.ResourceNotFoundException;
+import com.nasim.notification_service.shared.exception.TenantResolutionException;
 import com.nasim.notification_service.model.dto.NotificationDto;
+import com.nasim.notification_service.notification.event.NotificationEvent;
 import com.nasim.notification_service.model.entity.Notification;
 import com.nasim.notification_service.model.entity.RoutingPolicy;
 import com.nasim.notification_service.model.entity.Template;
 import com.nasim.notification_service.repository.NotificationRepository;
 import com.nasim.notification_service.repository.TemplateRepository;
-import com.nasim.notification_service.service.NotificationRoutService;
-import com.nasim.notification_service.service.NotificationService;
-import com.nasim.notification_service.service.NotificationStatusHistoryService;
-import com.nasim.notification_service.service.RoutingPolicyService;
+import com.nasim.notification_service.routing.service.NotificationRouteService;
+import com.nasim.notification_service.notification.service.NotificationService;
+import com.nasim.notification_service.notification.service.NotificationStatusHistoryService;
+import com.nasim.notification_service.routing.service.RoutingPolicyService;
 import jakarta.validation.Valid;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -25,20 +30,22 @@ public class NotificationServiceImpl implements NotificationService {
     private final TemplateRepository templateRepository;
     private final NotificationRepository notificationRepository;
     private final RoutingPolicyService routingPolicyService;
-    private final NotificationRoutService notificationRoutService;
+    private final NotificationRouteService notificationRouteService;
     private final NotificationStatusHistoryService notificationStatusHistoryService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public NotificationServiceImpl(
             TemplateRepository templateRepository,
             NotificationRepository notificationRepository,
-            RoutingPolicyService routingPolicyService, NotificationRoutService notificationRoutService,
-            NotificationStatusHistoryService notificationStatusHistoryService
+            RoutingPolicyService routingPolicyService, NotificationRouteService notificationRouteService,
+            NotificationStatusHistoryService notificationStatusHistoryService, ApplicationEventPublisher eventPublisher
     ) {
         this.templateRepository = templateRepository;
         this.notificationRepository = notificationRepository;
         this.routingPolicyService = routingPolicyService;
-        this.notificationRoutService = notificationRoutService;
+        this.notificationRouteService = notificationRouteService;
         this.notificationStatusHistoryService = notificationStatusHistoryService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -76,7 +83,7 @@ public class NotificationServiceImpl implements NotificationService {
                 Notification.NotificationStatus.CREATED,
                 "Notification created"
         );
-        notificationRoutService.generateRoutingPlan(savedNotification,routingPolicy);
+        notificationRouteService.generateRoutingPlan(savedNotification, routingPolicy);
 
         savedNotification.setCurrentStatus(Notification.NotificationStatus.QUEUED);
 
@@ -86,7 +93,19 @@ public class NotificationServiceImpl implements NotificationService {
                 Notification.NotificationStatus.QUEUED,
                 "Notification queued for delivery"
         );
-
+        eventPublisher.publishEvent(new NotificationEvent(savedNotification.getId(), tenantId, savedNotification.getCurrentStatus()));
         return savedNotification;
+    }
+
+    @Override
+    public List<Notification> listNotificationByStaus(Notification.NotificationStatus status) {
+        return notificationRepository.findAllByStatus(status);
+    }
+
+    @Override
+    public Notification findbyIdAndStatus(Long notificationId, Notification.NotificationStatus notificationStatus) {
+        return notificationRepository.findByIdAndStatus(notificationId, notificationStatus).orElseThrow(()
+                -> new BusinessException("No_notification_found_by_id_status", notificationId, notificationStatus.name())
+        );
     }
 }

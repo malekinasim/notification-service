@@ -10,10 +10,10 @@ import lombok.Setter;
 @Getter
 @Table(name = "routing_policy", uniqueConstraints = {
         @UniqueConstraint(name = "uk_routing_policy_code", columnNames = "code")
-},indexes = {@Index(name = "idx_routing_policy_tenant_templat",columnList = "template_id,tenant_id")})
+}, indexes = {@Index(name = "idx_routing_policy_tenant_templat", columnList = "template_id,tenant_id")})
 public class RoutingPolicy extends BaseEntity<Long> {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "template_id" , nullable = false)
+    @JoinColumn(name = "template_id", nullable = false)
     private Template template;
     @Column(name = "code", nullable = false, unique = true, length = 100)
     private String code;

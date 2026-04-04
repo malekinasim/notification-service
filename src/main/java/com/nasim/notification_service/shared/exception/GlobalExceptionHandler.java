@@ -1,6 +1,6 @@
-package com.nasim.notification_service.exception;
+package com.nasim.notification_service.shared.exception;
 
-import com.nasim.notification_service.config.resourceBundel.MessageUtil;
+import com.nasim.notification_service.shared.resourceBundel.MessageUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +20,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ApiErrorResponse> handleApiResponseError(BusinessException exception){
-       return buildResponse(HttpStatus.BAD_REQUEST,messageUtil.get(exception.getMessageKey(),
-               exception.getArgs()));
+    public ResponseEntity<ApiErrorResponse> handleApiResponseError(BusinessException exception) {
+        return buildResponse(HttpStatus.BAD_REQUEST, messageUtil.get(exception.getMessageKey(),
+                exception.getArgs()));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
@@ -31,6 +31,7 @@ public class GlobalExceptionHandler {
                 "Database constraint violation: " + Objects.requireNonNull(ex.getRootCause()).getMessage());
 
     }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -41,10 +42,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleTenantNotFound(TenantResolutionException ex) {
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleUnexpected(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected internal server error");
     }
+
     private ResponseEntity<ApiErrorResponse> buildResponse(HttpStatus status, String message) {
         ApiErrorResponse err = new ApiErrorResponse(status.value(), message, LocalDateTime.now());
         return new ResponseEntity<>(err, status);

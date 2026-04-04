@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "notification_status_history")
-public class NotificationStatusHistory extends TenantBaseEntity<Long,String>{
+public class NotificationStatusHistory extends TenantBaseEntity<Long, String> {
 
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

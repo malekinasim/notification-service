@@ -1,8 +1,8 @@
-package com.nasim.notification_service.service.impl;
+package com.nasim.notification_service.routing.service.impl;
 
 import com.nasim.notification_service.model.entity.RoutingPolicyStep;
 import com.nasim.notification_service.repository.RoutingPolicyStepRepository;
-import com.nasim.notification_service.service.RoutingPolicyStepService;
+import com.nasim.notification_service.routing.service.RoutingPolicyStepService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +15,9 @@ public class RoutingPolicyStepServiceImpl implements RoutingPolicyStepService {
     public RoutingPolicyStepServiceImpl(RoutingPolicyStepRepository routingPolicyStepRepository) {
         this.routingPolicyStepRepository = routingPolicyStepRepository;
     }
+
     @Override
-    public List<RoutingPolicyStep> findAllStepOfRoutingPolicy(Long routingPolicyId){
+    public List<RoutingPolicyStep> findAllStepOfRoutingPolicy(Long routingPolicyId) {
         return routingPolicyStepRepository.findAllByRoutingPolicyId(routingPolicyId);
     }
 }

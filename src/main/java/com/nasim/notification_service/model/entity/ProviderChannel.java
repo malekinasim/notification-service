@@ -13,7 +13,7 @@ import lombok.Setter;
 )
 @Getter
 @Setter
-public class ProviderChannel extends TenantBaseEntity<Long,String> {
+public class ProviderChannel extends TenantBaseEntity<Long, String> {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "channel_id", nullable = false)

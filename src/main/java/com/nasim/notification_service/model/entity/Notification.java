@@ -10,19 +10,19 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "notification",indexes = {
-        @Index(name = "idx_notification_template_policy" ,columnList = "template_id,routing_policy_id")
+@Table(name = "notification", indexes = {
+        @Index(name = "idx_notification_template_policy", columnList = "template_id,routing_policy_id")
 })
 public class Notification extends TenantBaseEntity<Long, String> {
 
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "template_id",nullable = false)
+    @JoinColumn(name = "template_id", nullable = false)
     private Template template;
 
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "routing_policy_id" , nullable = false)
+    @JoinColumn(name = "routing_policy_id", nullable = false)
     private RoutingPolicy routingPolicy;
 
     @Column(name = "recipient_address", nullable = false, length = 255)

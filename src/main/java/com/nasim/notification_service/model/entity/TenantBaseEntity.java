@@ -8,7 +8,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public class TenantBaseEntity<ID,TenantID> extends BaseEntity<ID> {
+public class TenantBaseEntity<ID, TenantID> extends BaseEntity<ID> {
     @Column(name = "tenant_id", nullable = false)
     private TenantID tenantID;
 }

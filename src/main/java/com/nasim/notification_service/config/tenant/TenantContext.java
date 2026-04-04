@@ -1,8 +1,11 @@
 package com.nasim.notification_service.config.tenant;
 
 public class TenantContext {
-    private final static ThreadLocal<String> CURRENT_TENANT=new ThreadLocal<>();
-    private TenantContext(){}
+    private final static ThreadLocal<String> CURRENT_TENANT = new ThreadLocal<>();
+
+    private TenantContext() {
+    }
+
     public static void setTenantId(String tenantId) {
         CURRENT_TENANT.set(tenantId);
     }

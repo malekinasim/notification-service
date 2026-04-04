@@ -10,6 +10,12 @@ spring:
     username: notif_user
     password: notif_pass
     driver-class-name: org.postgresql.Driver
+  Kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 
   jpa:
     hibernate:

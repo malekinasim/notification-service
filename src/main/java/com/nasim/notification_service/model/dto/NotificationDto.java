@@ -1,13 +1,12 @@
 package com.nasim.notification_service.model.dto;
 
 
-
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 
 public record NotificationDto(
-        Long tempLateId ,
+        Long tempLateId,
         @NotBlank(message = "templateCode must not be blank")
         String templateCode,
         String routingPolicyCode,

@@ -1,11 +1,11 @@
-package com.nasim.notification_service.service.impl;
+package com.nasim.notification_service.routing.service.impl;
 
 import com.nasim.notification_service.config.tenant.TenantContext;
-import com.nasim.notification_service.exception.BusinessException;
-import com.nasim.notification_service.exception.TenantResolutionException;
+import com.nasim.notification_service.shared.exception.BusinessException;
+import com.nasim.notification_service.shared.exception.TenantResolutionException;
 import com.nasim.notification_service.model.entity.RoutingPolicy;
 import com.nasim.notification_service.repository.RoutingPolicyRepository;
-import com.nasim.notification_service.service.RoutingPolicyService;
+import com.nasim.notification_service.routing.service.RoutingPolicyService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;

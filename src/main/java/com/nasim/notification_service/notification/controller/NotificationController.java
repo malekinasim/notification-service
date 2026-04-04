@@ -1,9 +1,9 @@
-package com.nasim.notification_service.controller;
+package com.nasim.notification_service.notification.controller;
 
 import com.nasim.notification_service.model.dto.NotificationDto;
 import com.nasim.notification_service.model.dto.NotificationMapper;
 import com.nasim.notification_service.model.entity.Notification;
-import com.nasim.notification_service.service.NotificationService;
+import com.nasim.notification_service.notification.service.NotificationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
     private final NotificationService notificationService;
     private final NotificationMapper notificationMapper;
+
     public NotificationController(NotificationService notificationService, NotificationMapper notificationMapper) {
         this.notificationService = notificationService;
         this.notificationMapper = notificationMapper;
@@ -26,9 +27,9 @@ public class NotificationController {
     public ResponseEntity<NotificationDto> createNotification(
             @Valid @RequestBody NotificationDto request
     ) {
-        Notification response= notificationService.create(request);
-        if(response!=null)
-            return new ResponseEntity<>(notificationMapper.map(response),HttpStatus.CREATED);
+        Notification response = notificationService.create(request);
+        if (response != null)
+            return new ResponseEntity<>(notificationMapper.map(response), HttpStatus.CREATED);
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

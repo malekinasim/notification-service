@@ -7,10 +7,10 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "template",uniqueConstraints = {@UniqueConstraint(name = "template_code_uk",
+@Table(name = "template", uniqueConstraints = {@UniqueConstraint(name = "template_code_uk",
         columnNames = "code"
 )})
-public class Template extends BaseEntity<Long>{
+public class Template extends BaseEntity<Long> {
 
     @Column(name = "code", nullable = false, unique = true, length = 100)
     private String code;
@@ -28,7 +28,7 @@ public class Template extends BaseEntity<Long>{
     @Column(name = "content_type", nullable = false, length = 30)
     private TemplateContentType contentType = TemplateContentType.TEXT;
 
-    public enum TemplateContentType{
-        TEXT,HTML,MARKDOWN,JSON
+    public enum TemplateContentType {
+        TEXT, HTML, MARKDOWN, JSON
     }
 }

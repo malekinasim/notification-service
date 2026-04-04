@@ -1,7 +1,6 @@
 package com.nasim.notification_service.config.tenant;
 
-import com.nasim.notification_service.config.security.CustomUserDetails;
-import com.nasim.notification_service.exception.TenantResolutionException;
+import com.nasim.notification_service.shared.exception.TenantResolutionException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,8 +45,8 @@ public class TenantContextFilter extends OncePerRequestFilter {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
-            if (principal instanceof CustomUserDetails userDetails) {
-                return userDetails.getTenantId();
+            if (principal instanceof TenantAwarePrincipal tenantAwarePrincipal) {
+                return tenantAwarePrincipal.getTenantId();
             }
         }
 

@@ -1,5 +1,4 @@
-package com.nasim.notification_service.exception;
-
+package com.nasim.notification_service.shared.exception;
 
 
 import java.time.LocalDateTime;

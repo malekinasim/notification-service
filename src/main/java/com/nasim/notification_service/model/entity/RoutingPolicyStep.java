@@ -16,17 +16,17 @@ import lombok.Setter;
                 name = "uk_routing_policy_step_order",
                 columnNames = {"routing_policy_id", "step_order"}
         )
-},indexes = {@Index(name = "idx_policy_step_order", columnList = "routing_policy_id, step_order")})
+}, indexes = {@Index(name = "idx_policy_step_order", columnList = "routing_policy_id, step_order")})
 public class RoutingPolicyStep extends BaseEntity<Long> {
     @ManyToOne(optional = false)
-    @JoinColumn(name = "routing_policy_id",nullable = false)
+    @JoinColumn(name = "routing_policy_id", nullable = false)
     private RoutingPolicy routingPolicy;
     @ManyToOne(optional = false)
-    @JoinColumn(name = "provider_channel_id",nullable = false)
+    @JoinColumn(name = "provider_channel_id", nullable = false)
     private ProviderChannel providerChannel;
-    @Column(name = "step_order",nullable = false)
+    @Column(name = "step_order", nullable = false)
     private Integer stepOrder;
-    @Column(name = "max_retry",nullable = false)
+    @Column(name = "max_retry", nullable = false)
     private Integer maxRetry = 1;
 
 }

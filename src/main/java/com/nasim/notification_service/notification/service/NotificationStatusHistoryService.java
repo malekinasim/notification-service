@@ -1,4 +1,4 @@
-package com.nasim.notification_service.service;
+package com.nasim.notification_service.notification.service;
 
 import com.nasim.notification_service.model.entity.Notification;
 

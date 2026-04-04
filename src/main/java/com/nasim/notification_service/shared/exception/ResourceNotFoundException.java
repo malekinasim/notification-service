@@ -1,4 +1,4 @@
-package com.nasim.notification_service.exception;
+package com.nasim.notification_service.shared.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

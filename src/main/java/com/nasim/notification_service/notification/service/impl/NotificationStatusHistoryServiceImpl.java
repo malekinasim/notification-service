@@ -1,9 +1,9 @@
-package com.nasim.notification_service.service.impl;
+package com.nasim.notification_service.notification.service.impl;
 
 import com.nasim.notification_service.model.entity.Notification;
 import com.nasim.notification_service.model.entity.NotificationStatusHistory;
 import com.nasim.notification_service.repository.NotificationStatusHistoryRepository;
-import com.nasim.notification_service.service.NotificationStatusHistoryService;
+import com.nasim.notification_service.notification.service.NotificationStatusHistoryService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
