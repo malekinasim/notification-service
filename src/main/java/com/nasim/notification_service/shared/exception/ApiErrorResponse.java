@@ -2,8 +2,6 @@ package com.nasim.notification_service.shared.exception;
 
 
 import java.time.LocalDateTime;
-import java.util.Map;
-
 public record ApiErrorResponse(
         int status,
         String message,

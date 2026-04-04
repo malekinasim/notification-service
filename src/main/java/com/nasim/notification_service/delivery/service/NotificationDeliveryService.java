@@ -1,7 +1,9 @@
 package com.nasim.notification_service.delivery.service;
 
-import org.springframework.stereotype.Service;
+import com.nasim.notification_service.notification.kafka.payload.NotificationQueeedMessage;
 
-@Service
 public interface NotificationDeliveryService {
+
+    public void sendQueuedMessageToProvider(NotificationQueeedMessage message);
+
 }

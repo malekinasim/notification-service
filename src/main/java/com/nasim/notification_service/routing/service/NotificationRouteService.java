@@ -11,4 +11,10 @@ public interface NotificationRouteService {
     List<NotificationRoute> generateRoutingPlan(Notification savedNotification, RoutingPolicy routingPolicy);
 
     List<NotificationRoute> findAllNotificationRoutByNotificationIdAndStatus(Long notificationId, NotificationRoute.RouteStatus routeStatus);
+
+    NotificationRoute updateStatus(NotificationRoute notificationRoute, NotificationRoute.RouteStatus routeStatus, Boolean fetch);
+
+    NotificationRoute findByID(Long notificationRouteId);
+
+    List<NotificationRoute> updateAllStatus(List<NotificationRoute> notificationRoutes, NotificationRoute.RouteStatus routeStatus, boolean b);
 }

@@ -5,7 +5,7 @@ import com.nasim.notification_service.shared.exception.BusinessException;
 import com.nasim.notification_service.shared.exception.ResourceNotFoundException;
 import com.nasim.notification_service.shared.exception.TenantResolutionException;
 import com.nasim.notification_service.model.dto.NotificationDto;
-import com.nasim.notification_service.notification.event.NotificationEvent;
+import com.nasim.notification_service.notification.event.NotificationQueuedEvent;
 import com.nasim.notification_service.model.entity.Notification;
 import com.nasim.notification_service.model.entity.RoutingPolicy;
 import com.nasim.notification_service.model.entity.Template;
@@ -49,6 +49,13 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public Notification findById(Long notificationId) {
+        return notificationRepository.findById(notificationId).orElseThrow(
+                ()-> new BusinessException("no_notification_found_by_id",notificationId)
+        );
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Notification create(@Valid NotificationDto request) {
         String tenantId = TenantContext.getTenantId();
@@ -85,21 +92,16 @@ public class NotificationServiceImpl implements NotificationService {
         );
         notificationRouteService.generateRoutingPlan(savedNotification, routingPolicy);
 
-        savedNotification.setCurrentStatus(Notification.NotificationStatus.QUEUED);
 
-        savedNotification = notificationRepository.save(savedNotification);
-        notificationStatusHistoryService.record(
-                savedNotification,
-                Notification.NotificationStatus.QUEUED,
-                "Notification queued for delivery"
-        );
-        eventPublisher.publishEvent(new NotificationEvent(savedNotification.getId(), tenantId, savedNotification.getCurrentStatus()));
+        savedNotification=this.updateNotificationStatus(savedNotification,
+                Notification.NotificationStatus.QUEUED,"Notification queued for delivery",false);
+        eventPublisher.publishEvent(new NotificationQueuedEvent(savedNotification.getId(), tenantId));
         return savedNotification;
     }
 
     @Override
     public List<Notification> listNotificationByStaus(Notification.NotificationStatus status) {
-        return notificationRepository.findAllByStatus(status);
+        return notificationRepository.findTop50ByCurrentStatusOrderByCreatedAtAsc(status);
     }
 
     @Override
@@ -107,5 +109,18 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.findByIdAndStatus(notificationId, notificationStatus).orElseThrow(()
                 -> new BusinessException("No_notification_found_by_id_status", notificationId, notificationStatus.name())
         );
+    }
+
+    @Override
+    public Notification updateNotificationStatus(Notification notification, Notification.NotificationStatus status, String reason, Boolean fetch) {
+        if(fetch || notification==null) notification=this.findById(notification.getId());
+        notification.setCurrentStatus(status) ;
+        Notification savedNotification = notificationRepository.save(notification);
+        notificationStatusHistoryService.record(
+                savedNotification,
+                status,
+                reason
+        );
+        return savedNotification;
     }
 }

@@ -9,11 +9,8 @@ import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    @Query(value = """ 
-                    select nt from Notification nt where nt.currentStatus= :staus
-                        order by nt.createdAt Asc limit 50
-            """)
-    List<Notification> findAllByStatus(Notification.NotificationStatus status);
+
+    List<Notification> findTop50ByCurrentStatusOrderByCreatedAtAsc(Notification.NotificationStatus status);
 
 
     @Query(value = """ 
