@@ -1,20 +1,19 @@
 package com.nasim.notification_service.notification.service.impl;
 
 import com.nasim.notification_service.config.tenant.TenantContext;
-import com.nasim.notification_service.shared.exception.BusinessException;
-import com.nasim.notification_service.shared.exception.ResourceNotFoundException;
-import com.nasim.notification_service.shared.exception.TenantResolutionException;
 import com.nasim.notification_service.model.dto.NotificationDto;
-import com.nasim.notification_service.notification.event.NotificationQueuedEvent;
 import com.nasim.notification_service.model.entity.Notification;
 import com.nasim.notification_service.model.entity.RoutingPolicy;
 import com.nasim.notification_service.model.entity.Template;
-import com.nasim.notification_service.repository.NotificationRepository;
-import com.nasim.notification_service.repository.TemplateRepository;
-import com.nasim.notification_service.routing.service.NotificationRouteService;
+import com.nasim.notification_service.notification.event.NotificationQueuedEvent;
 import com.nasim.notification_service.notification.service.NotificationService;
 import com.nasim.notification_service.notification.service.NotificationStatusHistoryService;
+import com.nasim.notification_service.notification.service.TemplateService;
+import com.nasim.notification_service.repository.NotificationRepository;
+import com.nasim.notification_service.routing.service.NotificationRouteService;
 import com.nasim.notification_service.routing.service.RoutingPolicyService;
+import com.nasim.notification_service.shared.exception.BusinessException;
+import com.nasim.notification_service.shared.exception.TenantResolutionException;
 import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class NotificationServiceImpl implements NotificationService {
 
-    private final TemplateRepository templateRepository;
+    private final TemplateService templateService;
     private final NotificationRepository notificationRepository;
     private final RoutingPolicyService routingPolicyService;
     private final NotificationRouteService notificationRouteService;
@@ -35,12 +34,12 @@ public class NotificationServiceImpl implements NotificationService {
     private final ApplicationEventPublisher eventPublisher;
 
     public NotificationServiceImpl(
-            TemplateRepository templateRepository,
+            TemplateService templateService,
             NotificationRepository notificationRepository,
             RoutingPolicyService routingPolicyService, NotificationRouteService notificationRouteService,
             NotificationStatusHistoryService notificationStatusHistoryService, ApplicationEventPublisher eventPublisher
     ) {
-        this.templateRepository = templateRepository;
+        this.templateService = templateService;
         this.notificationRepository = notificationRepository;
         this.routingPolicyService = routingPolicyService;
         this.notificationRouteService = notificationRouteService;
@@ -63,12 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
             throw new TenantResolutionException("Tenant could not be resolved");
         }
 
-        Template template = templateRepository.findByCodeAndActiveTrue(request.templateCode())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Template not found: " + request.templateCode()
-                        )
-                );
+        Template template = templateService.findByCode(request.templateCode());
 
         RoutingPolicy routingPolicy = routingPolicyService.resolveRoutingPolicy(request.templateCode());
 

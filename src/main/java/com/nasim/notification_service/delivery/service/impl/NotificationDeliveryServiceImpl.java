@@ -3,7 +3,8 @@ package com.nasim.notification_service.delivery.service.impl;
 import com.nasim.notification_service.delivery.service.DeliveryAttemptService;
 import com.nasim.notification_service.delivery.service.NotificationDeliveryService;
 import com.nasim.notification_service.delivery.service.ProviderDispatcher;
-import com.nasim.notification_service.model.dto.ProviderResponse;
+import com.nasim.notification_service.model.dto.ProviderDispatchCommand;
+import com.nasim.notification_service.model.dto.ProviderSendResult;
 import com.nasim.notification_service.model.entity.*;
 import com.nasim.notification_service.notification.kafka.payload.NotificationQueuedMessage;
 import com.nasim.notification_service.notification.service.NotificationService;
@@ -34,22 +35,22 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
     public void sendQueuedMessageToProvider(NotificationQueuedMessage message) {
         Notification notification=notificationService.findbyIdAndStatus(message.notificationId(), Notification.NotificationStatus.QUEUED);
         notification=notificationService.updateNotificationStatus(notification, Notification.NotificationStatus.PROCESSING,"Delivery processing started",false);
-        NotificationRoute notificationRoute=processNotificationDelivery(notification);
+        Boolean  finalRouteStatus=processNotificationDelivery(notification);
         Notification.NotificationStatus status= Notification.NotificationStatus.SENT;
 
-        if(notificationRoute==null || notificationRoute.getStatus().name().equals(NotificationRoute.RouteStatus.FAILED.name())){
+        if(!finalRouteStatus ){
             status= Notification.NotificationStatus.FAILED;
         }
-        notificationService.updateNotificationStatus(notification,status,String.format("Delivery process finished %s",notificationRoute.getStatus().name()),false);
+        notificationService.updateNotificationStatus(notification,status,String.format("Delivery process finished %s",status.name()),false);
     }
 
-    private NotificationRoute processNotificationDelivery(Notification notification) {
+    private Boolean processNotificationDelivery(Notification notification) {
         List<NotificationRoute> pendingRoutes =
                 notificationRouteService.findAllNotificationRoutByNotificationIdAndStatus(
                         notification.getId(),
                         NotificationRoute.RouteStatus.PENDING
                 );
-        if(CollectionUtils.isEmpty(pendingRoutes)) return null;
+        if(CollectionUtils.isEmpty(pendingRoutes)) return false;
         int idx = 0;
         NotificationRoute notificationRoute = null;
         for (; idx < pendingRoutes.size(); idx++) {
@@ -72,7 +73,7 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
 
         }
 
-        return notificationRoute;
+        return notificationRoute.getStatus().name().equals(NotificationRoute.RouteStatus.FAILED.name())? false : true;
 
     }
 
@@ -81,12 +82,26 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
         DeliveryAttempt deliveryAttempt = null;
         for (int retryNum = 0; retryNum < routingPolicyStep.getMaxRetry(); retryNum++) {
             deliveryAttempt = deliveryAttemptService.create(retryNum + 1, notificationRoute, notification.getPayloadJson());
-            ProviderResponse providerResponse = providerDispatcher.dispatchMessageToProvider(notification, notificationRoute, routingPolicy, routingPolicyStep, deliveryAttempt);
-            if (providerResponse.success()) {
+            ProviderSendResult providerSendResult = providerDispatcher.dispatchMessageToProvider(
+                    new ProviderDispatchCommand(
+                            notification.getId(),
+                            notificationRoute.getId(),
+                            notification.getTenantID(),
+                            routingPolicyStep.getProviderChannel().getChannel().getType(),
+                            routingPolicyStep.getProviderChannel().getProvider().getType(),
+                            notification.getRecipientAddress(),
+                            notification.getRecipientName(),
+                            notification.getSenderAddress(),
+                            notification.getSenderName(),
+                            notification.getPayloadJson(),
+                            notification.getTemplate().getContentType()
+                    )
+            );
+            if (providerSendResult.success()) {
                 deliveryAttemptService.updateStatus(deliveryAttempt,true,null,null,false);
                 break;
             } else {
-                deliveryAttemptService.updateStatus(deliveryAttempt,false, String.valueOf(providerResponse.errorCode()),providerResponse.errorMessage(),false);
+                deliveryAttemptService.updateStatus(deliveryAttempt,false, providerSendResult.errorCode(), providerSendResult.errorMessage(),false);
 
             }
         }
