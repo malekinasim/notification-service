@@ -16,7 +16,7 @@ public class NotificationQueuedKafkaConsumer {
 
 
     @KafkaListener(
-            topics = "#{T(com.nasim.notification_service.config.kafka).NOTIFICATION_QUEUED.getKey()}"
+            topics = "#{T(com.nasim.notification_service.config.kafka.KafkaTopics).NOTIFICATION_QUEUED.getKey()}"
     )
     public void listenToNotificationQueuedMessage(NotificationQueuedMessage message) {
         try {

@@ -1,4 +1,4 @@
-package com.nasim.notification_service.delivery.service;
+package com.nasim.notification_service.provider.service;
 
 import com.nasim.notification_service.model.dto.ProviderDispatchCommand;
 import com.nasim.notification_service.model.dto.ProviderSendResult;

@@ -5,5 +5,5 @@ import com.nasim.notification_service.model.entity.TemplateVariable;
 import java.util.List;
 
 public interface TemplateVariableService {
-    List<TemplateVariable> findAllTemplateVariableByTemplateId(Long id);
+    List<TemplateVariable> findAllTemplateVariableByTemplateId(Long templateId);
 }

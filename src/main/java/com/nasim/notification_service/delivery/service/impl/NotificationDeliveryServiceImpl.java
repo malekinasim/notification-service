@@ -2,12 +2,13 @@ package com.nasim.notification_service.delivery.service.impl;
 
 import com.nasim.notification_service.delivery.service.DeliveryAttemptService;
 import com.nasim.notification_service.delivery.service.NotificationDeliveryService;
-import com.nasim.notification_service.delivery.service.ProviderDispatcher;
+import com.nasim.notification_service.provider.service.ProviderDispatcher;
 import com.nasim.notification_service.model.dto.ProviderDispatchCommand;
 import com.nasim.notification_service.model.dto.ProviderSendResult;
 import com.nasim.notification_service.model.entity.*;
 import com.nasim.notification_service.notification.kafka.payload.NotificationQueuedMessage;
 import com.nasim.notification_service.notification.service.NotificationService;
+import com.nasim.notification_service.render.service.NotificationMessageRendererService;
 import com.nasim.notification_service.routing.service.NotificationRouteService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +22,14 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
     private final NotificationService notificationService;
     private final DeliveryAttemptService deliveryAttemptService;
     private final ProviderDispatcher providerDispatcher;
+    private final NotificationMessageRendererService notificationMessageRendererService;
 
-    public NotificationDeliveryServiceImpl(NotificationRouteService notificationRouteService, NotificationService notificationService, DeliveryAttemptService deliveryAttemptService, ProviderDispatcher providerDispatcher) {
+    public NotificationDeliveryServiceImpl(NotificationRouteService notificationRouteService, NotificationService notificationService, DeliveryAttemptService deliveryAttemptService, ProviderDispatcher providerDispatcher, NotificationMessageRendererService notificationMessageRendererService) {
         this.notificationRouteService = notificationRouteService;
         this.notificationService = notificationService;
         this.deliveryAttemptService = deliveryAttemptService;
         this.providerDispatcher = providerDispatcher;
+        this.notificationMessageRendererService = notificationMessageRendererService;
     }
 
 
@@ -82,6 +85,8 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
         DeliveryAttempt deliveryAttempt = null;
         for (int retryNum = 0; retryNum < routingPolicyStep.getMaxRetry(); retryNum++) {
             deliveryAttempt = deliveryAttemptService.create(retryNum + 1, notificationRoute, notification.getPayloadJson());
+
+            String body=notificationMessageRendererService.render(notification.getTemplate(),notification.getPayloadJson());
             ProviderSendResult providerSendResult = providerDispatcher.dispatchMessageToProvider(
                     new ProviderDispatchCommand(
                             notification.getId(),
@@ -93,7 +98,7 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
                             notification.getRecipientName(),
                             notification.getSenderAddress(),
                             notification.getSenderName(),
-                            notification.getPayloadJson(),
+                            body,
                             notification.getTemplate().getContentType()
                     )
             );
