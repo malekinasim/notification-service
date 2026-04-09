@@ -2,7 +2,8 @@ package com.nasim.notification_service.delivery.service.impl;
 
 import com.nasim.notification_service.delivery.service.DeliveryAttemptService;
 import com.nasim.notification_service.delivery.service.NotificationDeliveryService;
-import com.nasim.notification_service.provider.service.ProviderDispatcher;
+import com.nasim.notification_service.provider.service.NotificationProviderClient;
+import com.nasim.notification_service.provider.service.ProviderFactory;
 import com.nasim.notification_service.model.dto.ProviderDispatchCommand;
 import com.nasim.notification_service.model.dto.ProviderSendResult;
 import com.nasim.notification_service.model.entity.*;
@@ -21,14 +22,14 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
     private final NotificationRouteService notificationRouteService;
     private final NotificationService notificationService;
     private final DeliveryAttemptService deliveryAttemptService;
-    private final ProviderDispatcher providerDispatcher;
+    private final ProviderFactory providerFactory;
     private final NotificationMessageRendererService notificationMessageRendererService;
 
-    public NotificationDeliveryServiceImpl(NotificationRouteService notificationRouteService, NotificationService notificationService, DeliveryAttemptService deliveryAttemptService, ProviderDispatcher providerDispatcher, NotificationMessageRendererService notificationMessageRendererService) {
+    public NotificationDeliveryServiceImpl(NotificationRouteService notificationRouteService, NotificationService notificationService, DeliveryAttemptService deliveryAttemptService, ProviderFactory providerFactory, NotificationMessageRendererService notificationMessageRendererService) {
         this.notificationRouteService = notificationRouteService;
         this.notificationService = notificationService;
         this.deliveryAttemptService = deliveryAttemptService;
-        this.providerDispatcher = providerDispatcher;
+        this.providerFactory = providerFactory;
         this.notificationMessageRendererService = notificationMessageRendererService;
     }
 
@@ -87,7 +88,8 @@ public class NotificationDeliveryServiceImpl implements NotificationDeliveryServ
             deliveryAttempt = deliveryAttemptService.create(retryNum + 1, notificationRoute, notification.getPayloadJson());
 
             String body=notificationMessageRendererService.render(notification.getTemplate(),notification.getPayloadJson());
-            ProviderSendResult providerSendResult = providerDispatcher.dispatchMessageToProvider(
+            NotificationProviderClient providerClient= providerFactory.getClient( routingPolicyStep.getProviderChannel().getProvider().getType());
+            ProviderSendResult providerSendResult = providerClient.send(
                     new ProviderDispatchCommand(
                             notification.getId(),
                             notificationRoute.getId(),
